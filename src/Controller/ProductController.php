@@ -4,7 +4,6 @@ namespace App\Controller;
 
 use App\Repository\PhoneRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
 class ProductController extends AbstractController
@@ -14,6 +13,6 @@ class ProductController extends AbstractController
      */
     public function getProducts(PhoneRepository $phoneRepository)
     {
-        return $this->json($phoneRepository->findAll(), 200, [], ['groups' => 'get:products']);
+        return $this->json($phoneRepository->findBy([], ['releaseDate' => 'DESC']), 200, [], ['groups' => 'get:products']);
     }
 }
