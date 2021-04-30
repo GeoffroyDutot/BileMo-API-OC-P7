@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\PhoneRepository;
 use Doctrine\ORM\Mapping as ORM;
 use Symfony\Component\Serializer\Annotation\Groups;
+use OpenApi\Annotations as OA;
 
 /**
  * @ORM\Entity(repositoryClass=PhoneRepository::class)
