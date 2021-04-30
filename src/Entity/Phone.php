@@ -20,54 +20,63 @@ class Phone
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @OA\Property(type="string", description="The phone model name.")
      * @Groups("get:products")
      */
     private $model;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @OA\Property(type="string", description="The phone brand name.")
      * @Groups("get:products")
      */
     private $brand;
 
     /**
      * @ORM\Column(type="string", length=13)
+     * @OA\Property(type="string", description="The phone unique number identifier product.")
      * @Groups("get:products")
      */
     private $ean;
 
     /**
      * @ORM\Column(type="text", nullable=true)
+     * @OA\Property(type="string", description="The phone description.")
      * @Groups("get:products")
      */
     private $description;
 
     /**
      * @ORM\Column(type="decimal")
+     * @OA\Property(type="flaot", description="The phone price.")
      * @Groups("get:products")
      */
     private $price;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @OA\Property(type="string", description="The phone url picture.")
      * @Groups("get:products")
      */
     private $pictureUrl;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
+     * @OA\Property(type="string", description="The phone color.")
      * @Groups("get:products")
      */
     private $color;
 
     /**
      * @ORM\Column(type="string", length=255)
+     * @OA\Property(type="string", description="The phone size.")
      * @Groups("get:products")
      */
     private $size;
 
     /**
      * @ORM\Column(type="date")
+     * @OA\Property(type="date", description="The phone release date.")
      * @Groups("get:products")
      */
     private $releaseDate;
