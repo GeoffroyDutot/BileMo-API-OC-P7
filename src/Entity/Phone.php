@@ -4,11 +4,13 @@ namespace App\Entity;
 
 use App\Repository\PhoneRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 use OpenApi\Annotations as OA;
 
 /**
  * @ORM\Entity(repositoryClass=PhoneRepository::class)
+ * @UniqueEntity("ean")
  */
 class Phone
 {
@@ -34,7 +36,7 @@ class Phone
     private $brand;
 
     /**
-     * @ORM\Column(type="string", length=13)
+     * @ORM\Column(type="string", length=13, unique=true)
      * @OA\Property(type="string", description="The phone unique number identifier product.")
      * @Groups("get:products")
      */
