@@ -16,7 +16,7 @@ class ProductController extends AbstractController
     /**
      * List all products
      *
-     * @Route("/products", name="products", methods={"GET"})
+     * @Route("/api/products", name="products", methods={"GET"})
      * @OA\Response(
      *     response=200,
      *     description="Returns list of products",
@@ -39,7 +39,7 @@ class ProductController extends AbstractController
     /**
      * Get one product by it's id
      *
-     * @Route("/product/{id}", name="product", methods={"GET"})
+     * @Route("/api/product/{id}", name="product", methods={"GET"})
      * @OA\Response(
      *     response=200,
      *     description="Return one product by it's id",
