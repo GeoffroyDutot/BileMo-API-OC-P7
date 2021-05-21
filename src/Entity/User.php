@@ -5,6 +5,7 @@ namespace App\Entity;
 use App\Repository\UserRepository;
 use Doctrine\ORM\Mapping as ORM;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass=UserRepository::class)
@@ -21,29 +22,34 @@ class User
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @OA\Property(type="string", description="The user's firstname.")
+     * @Groups("get:users")
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @OA\Property(type="string", description="The user's lastname.")
+     * @Groups("get:users")
      */
     private $lastName;
 
     /**
      * @ORM\Column(type="string", length=255)
      * @OA\Property(type="string", description="The user's email.")
+     * @Groups("get:users")
      */
     private $email;
 
     /**
      * @ORM\Column(type="datetime")
      * @OA\Property(type="datetime", description="The user's registration date.")
+     * @Groups("get:users")
      */
     private $dateRegistration;
 
     /**
      * @ORM\ManyToOne(targetEntity=Company::class, inversedBy="users")
+     * @OA\Property(type="object", description="The user's company.")
      * @ORM\JoinColumn(nullable=false)
      */
     private $company;

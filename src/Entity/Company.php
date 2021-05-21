@@ -51,6 +51,7 @@ class Company implements UserInterface
 
     /**
      * @ORM\OneToMany(targetEntity=User::class, mappedBy="company", orphanRemoval=true)
+     * @OA\Property(type="array", description="The company's users.")
      */
     private $users;
 
