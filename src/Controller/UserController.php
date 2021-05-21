@@ -42,6 +42,19 @@ class UserController extends AbstractController
      * Get one user by company
      *
      * @Route("/api/users/{id}", name="user", methods={"GET"})
+     * @OA\Response(
+     *     response=200,
+     *     description="Return one user by company",
+     *     @Model(type=User::class, groups={"get:users"})
+     * )
+     * @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="Id of user",
+     *     @OA\Schema(type="integer")
+     * )
+     * @OA\Tag(name="users")
      */
     public function getUserByCompany(User $user)
     {
