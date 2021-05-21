@@ -37,4 +37,18 @@ class UserController extends AbstractController
             return $this->json($userRepository->findBy(['company' => $this->getUser()->getId()]), 200, [], ['groups' => 'get:users']);
         });
     }
+
+    /**
+     * Get one user by company
+     *
+     * @Route("/api/users/{id}", name="user", methods={"GET"})
+     */
+    public function getUserByCompany(User $user)
+    {
+        if ($user->getCompany() === $this->getUser()) {
+            return $this->json($user, 200, [], ['groups' => 'get:users']);
+        } else {
+            return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
+        }
+    }
 }
