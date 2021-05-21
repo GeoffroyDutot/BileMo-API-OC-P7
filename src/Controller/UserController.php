@@ -9,6 +9,8 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
+use Symfony\Contracts\Cache\CacheInterface;
+use Symfony\Contracts\Cache\ItemInterface;
 
 class UserController extends AbstractController
 {
@@ -27,8 +29,12 @@ class UserController extends AbstractController
      * @OA\Tag(name="users")
      * @Security(name="Bearer")
      */
-    public function getUsersByCompany(UserRepository $userRepository)
+    public function getUsersByCompany(UserRepository $userRepository, CacheInterface $cache)
     {
-        return $this->json($userRepository->findBy(['company' => $this->getUser()->getId()]), 200, [], ['groups' => 'get:users']);
+        return $cache->get('users'.$this->getUser()->getId(), function (ItemInterface $item) use($userRepository) {
+            $item->expiresAfter(30);
+
+            return $this->json($userRepository->findBy(['company' => $this->getUser()->getId()]), 200, [], ['groups' => 'get:users']);
+        });
     }
 }
