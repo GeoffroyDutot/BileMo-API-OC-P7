@@ -25,6 +25,7 @@ class CompanyFixtures extends Fixture
         $password = $this->encoder->encodePassword($company, 'Amz0nePass2021!');
         $company->setPassword($password);
         $manager->persist($company);
+        $this->addReference('company', $company);
 
         $company1 = new Company();
         $company1->setName('Fnak');
@@ -32,6 +33,7 @@ class CompanyFixtures extends Fixture
         $password1 = $this->encoder->encodePassword($company1, 'FnaK2020@0');
         $company1->setPassword($password1);
         $manager->persist($company1);
+        $this->addReference('company1', $company1);
 
         $company2 = new Company();
         $company2->setName('TaupeAchat');
@@ -39,6 +41,7 @@ class CompanyFixtures extends Fixture
         $password2 = $this->encoder->encodePassword($company2, 'TaupeAchate2021!');
         $company2->setPassword($password2);
         $manager->persist($company2);
+        $this->addReference('company2', $company2);
 
         $manager->flush();
     }
