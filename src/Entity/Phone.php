@@ -79,7 +79,7 @@ class Phone
 
     /**
      * @ORM\Column(type="date")
-     * @OA\Property(type="date", description="The phone release date.")
+     * @OA\Property(type="string", format="date", description="The phone release date.")
      * @Groups("get:products")
      */
     private $releaseDate;

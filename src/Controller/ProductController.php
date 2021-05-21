@@ -43,10 +43,7 @@ class ProductController extends AbstractController
      * @OA\Response(
      *     response=200,
      *     description="Return one product by it's id",
-     *     @OA\JsonContent(
-     *        type="object",
-     *        @OA\Items(ref=@Model(type=Phone::class, groups={"get:products"}))
-     *     )
+     *     @Model(type=Phone::class, groups={"get:products"})
      * )
      * @OA\Parameter(
      *     name="id",
