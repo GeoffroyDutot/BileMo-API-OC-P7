@@ -42,7 +42,7 @@ class User
 
     /**
      * @ORM\Column(type="datetime")
-     * @OA\Property(type="datetime", description="The user's registration date.")
+     * @OA\Property(type="string",format="date-time", description="The user's registration date.")
      * @Groups("get:users")
      */
     private $dateRegistration;

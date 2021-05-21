@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -24,6 +25,7 @@ class UserController extends AbstractController
      *     )
      * )
      * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function getUsersByCompany(UserRepository $userRepository)
     {
