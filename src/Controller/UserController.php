@@ -4,11 +4,14 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -67,5 +70,26 @@ class UserController extends AbstractController
                 return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
             }
         });
+    }
+
+    /**
+     * Add a new user by a company
+     *
+     * @Route("/api/users", name="add_user", methods={"POST"})
+     */
+    public function addUserByCompany(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    {
+        $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+
+        if (empty($user->getDateRegistration())) {
+            $user->setDateRegistration(new \DateTime('now'));
+        }
+
+        $user->setCompany($this->getUser());
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return $this->json($user, 201, [], ['groups' => 'get:users']);
     }
 }
