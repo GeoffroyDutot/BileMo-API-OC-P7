@@ -56,12 +56,16 @@ class UserController extends AbstractController
      * )
      * @OA\Tag(name="users")
      */
-    public function getUserByCompany(User $user)
+    public function getUserByCompany(User $user, CacheInterface $cache)
     {
-        if ($user->getCompany() === $this->getUser()) {
-            return $this->json($user, 200, [], ['groups' => 'get:users']);
-        } else {
-            return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
-        }
+        return $cache->get('user'.$user->getId().'-'.$this->getUser()->getId(), function (ItemInterface $item) use($user) {
+            $item->expiresAfter(30);
+
+            if ($user->getCompany() === $this->getUser()) {
+                return $this->json($user, 200, [], ['groups' => 'get:users']);
+            } else {
+                return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
+            }
+        });
     }
 }
