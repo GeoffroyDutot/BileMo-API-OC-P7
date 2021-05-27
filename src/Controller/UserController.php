@@ -45,11 +45,6 @@ class UserController extends AbstractController
      * Get one user by company
      *
      * @Route("/api/users/{id}", name="user", methods={"GET"})
-     * @OA\Response(
-     *     response=200,
-     *     description="Return one user by company",
-     *     @Model(type=User::class, groups={"get:users"})
-     * )
      * @OA\Parameter(
      *     name="id",
      *     in="path",
@@ -57,7 +52,13 @@ class UserController extends AbstractController
      *     description="Id of user",
      *     @OA\Schema(type="integer")
      * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Return one user by company",
+     *     @Model(type=User::class, groups={"get:users"})
+     * )
      * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function getUserByCompany(User $user, CacheInterface $cache)
     {
@@ -76,6 +77,26 @@ class UserController extends AbstractController
      * Add a new user by a company
      *
      * @Route("/api/users", name="add_user", methods={"POST"})
+     * @OA\RequestBody(
+     *     description="Customer to add",
+     *     required=true,
+     *     @Model(type=User::class, groups={"get:users"})
+     *     )
+     * @OA\Response(
+     *     response=201,
+     *     description="Success - Return User added.",
+     *     @Model(type=User::class, groups={"get:users"})
+     * )
+     * @OA\Response(
+     *     response=401,
+     *     description="JWT Token not found | Expired JWT Token"
+     * )
+     * @OA\Response(
+     *     response=500,
+     *     description="Syntax Error - Internal Error"
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function addUserByCompany(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
     {
