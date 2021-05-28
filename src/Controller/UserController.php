@@ -4,11 +4,14 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Repository\UserRepository;
+use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
+use Symfony\Component\Serializer\SerializerInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -42,11 +45,6 @@ class UserController extends AbstractController
      * Get one user by company
      *
      * @Route("/api/users/{id}", name="user", methods={"GET"})
-     * @OA\Response(
-     *     response=200,
-     *     description="Return one user by company",
-     *     @Model(type=User::class, groups={"get:users"})
-     * )
      * @OA\Parameter(
      *     name="id",
      *     in="path",
@@ -54,7 +52,13 @@ class UserController extends AbstractController
      *     description="Id of user",
      *     @OA\Schema(type="integer")
      * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Return one user by company",
+     *     @Model(type=User::class, groups={"get:users"})
+     * )
      * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function getUserByCompany(User $user, CacheInterface $cache)
     {
@@ -67,5 +71,46 @@ class UserController extends AbstractController
                 return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
             }
         });
+    }
+
+    /**
+     * Add a new user by a company
+     *
+     * @Route("/api/users", name="add_user", methods={"POST"})
+     * @OA\RequestBody(
+     *     description="Customer to add",
+     *     required=true,
+     *     @Model(type=User::class, groups={"get:users"})
+     *     )
+     * @OA\Response(
+     *     response=201,
+     *     description="Success - Return User added.",
+     *     @Model(type=User::class, groups={"get:users"})
+     * )
+     * @OA\Response(
+     *     response=401,
+     *     description="JWT Token not found | Expired JWT Token"
+     * )
+     * @OA\Response(
+     *     response=500,
+     *     description="Syntax Error - Internal Error"
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
+     */
+    public function addUserByCompany(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    {
+        $user = $serializer->deserialize($request->getContent(), User::class, 'json');
+
+        if (empty($user->getDateRegistration())) {
+            $user->setDateRegistration(new \DateTime('now'));
+        }
+
+        $user->setCompany($this->getUser());
+
+        $entityManager->persist($user);
+        $entityManager->flush();
+
+        return $this->json($user, 201, [], ['groups' => 'get:users']);
     }
 }
