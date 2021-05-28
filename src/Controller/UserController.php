@@ -78,7 +78,7 @@ class UserController extends AbstractController
      *
      * @Route("/api/users", name="add_user", methods={"POST"})
      * @OA\RequestBody(
-     *     description="Customer to add",
+     *     description="User to add",
      *     required=true,
      *     @Model(type=User::class, groups={"get:users"})
      *     )
@@ -112,5 +112,22 @@ class UserController extends AbstractController
         $entityManager->flush();
 
         return $this->json($user, 201, [], ['groups' => 'get:users']);
+    }
+
+    /**
+     * Delete an user by a company
+     *
+     * @Route("/api/users/{id}", name="delete_user", methods={"DELETE"})
+     */
+    public function deleteUserByCompany(User $user, EntityManagerInterface $entityManager)
+    {
+        if ($user->getCompany() === $this->getUser()) {
+            $entityManager->remove($user);
+            $entityManager->flush();
+
+            return $this->json(['success' => true, 'msg' => 'Success, User deleted.'], 200);
+        } else {
+            return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
+        }
     }
 }
