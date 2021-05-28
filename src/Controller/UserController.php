@@ -118,6 +118,31 @@ class UserController extends AbstractController
      * Delete an user by a company
      *
      * @Route("/api/users/{id}", name="delete_user", methods={"DELETE"})
+     * @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="Id of user to delete",
+     *     @OA\Schema(type="integer")
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Success, User deleted."
+     * )
+     * @OA\Response(
+     *     response=401,
+     *     description="JWT Token not found | Expired JWT Token"
+     * )
+     * @OA\Response(
+     *     response=403,
+     *     description="Unauthorized."
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="User not found."
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function deleteUserByCompany(User $user, EntityManagerInterface $entityManager)
     {
