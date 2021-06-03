@@ -155,4 +155,39 @@ class UserController extends AbstractController
             return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
         }
     }
+
+    /**
+     * Update patch an user by a company
+     *
+     * @Route("/api/users/{id}", name="update_patch_user", methods={"PATCH"})
+     */
+    public function updatePatchUserByCompany(Request $request, User $user, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    {
+        if ($user->getCompany() === $this->getUser()) {
+            $userData = $serializer->deserialize($request->getContent(), User::class, 'json');
+
+            if (!empty($userData->getFirstName())) {
+                $user->setFirstName($userData->getFirstName());
+            }
+
+            if (!empty($userData->getLastName())) {
+                $user->setLastName($userData->getLastName());
+            }
+
+            if (!empty($userData->getEmail())) {
+                $user->setEmail($userData->getEmail());
+            }
+
+            if (!empty($userData->getDateRegistration())) {
+                $user->setDateRegistration($userData->getDateRegistration());
+            }
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return $this->json($user, 201, [], ['groups' => 'get:users']);
+        } else {
+            return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
+        }
+    }
 }
