@@ -81,7 +81,7 @@ class UserController extends AbstractController
      *     description="User to add",
      *     required=true,
      *     @Model(type=User::class, groups={"get:users"})
-     *     )
+     * )
      * @OA\Response(
      *     response=201,
      *     description="Success - Return User added.",
@@ -160,6 +160,33 @@ class UserController extends AbstractController
      * Update patch an user by a company
      *
      * @Route("/api/users/{id}", name="update_patch_user", methods={"PATCH"})
+     * @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="Id of user to update",
+     *     @OA\Schema(type="integer")
+     * )
+     * @OA\RequestBody(
+     *     description="User data to update",
+     *     required=true,
+     *     @Model(type=User::class, groups={"get:users"})
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Success - Return User Updated.",
+     *     @Model(type=User::class, groups={"get:users"})
+     * )
+     * @OA\Response(
+     *     response=401,
+     *     description="JWT Token not found | Expired JWT Token"
+     * )
+     * @OA\Response(
+     *     response=500,
+     *     description="Syntax Error - Internal Error"
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
      */
     public function updatePatchUserByCompany(Request $request, User $user, SerializerInterface $serializer, EntityManagerInterface $entityManager)
     {
