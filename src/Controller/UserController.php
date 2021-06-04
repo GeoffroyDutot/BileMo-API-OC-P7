@@ -22,6 +22,20 @@ class UserController extends AbstractController
      * List of users by company
      *
      * @Route("/api/users", name="users", methods={"GET"})
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     required=false,
+     *     description="Limit of users to return",
+     *     @OA\Schema(type="integer")
+     * )
+     * @OA\Parameter(
+     *     name="offset",
+     *     in="query",
+     *     required=false,
+     *     description="Offset of users to return",
+     *     @OA\Schema(type="integer")
+     * )
      * @OA\Response(
      *     response=200,
      *     description="Returns list of users by company",
@@ -33,12 +47,15 @@ class UserController extends AbstractController
      * @OA\Tag(name="users")
      * @Security(name="Bearer")
      */
-    public function getUsersByCompany(UserRepository $userRepository, CacheInterface $cache)
+    public function getUsersByCompany(Request $request, UserRepository $userRepository, CacheInterface $cache)
     {
-        return $cache->get('users'.$this->getUser()->getId(), function (ItemInterface $item) use($userRepository) {
+        $limit = $request->get('limit') ?? 10;
+        $offset = $request->get('offset') ?? 0;
+
+        return $cache->get('users'.$this->getUser()->getId(), function (ItemInterface $item) use($userRepository, $limit, $offset) {
             $item->expiresAfter(30);
 
-            return $this->json($userRepository->findBy(['company' => $this->getUser()->getId()]), 200, [], ['groups' => 'get:users']);
+            return $this->json($userRepository->findBy(['company' => $this->getUser()->getId()], ['dateRegistration' => 'DESC'], $limit, $offset), 200, [], ['groups' => 'get:users']);
         });
     }
 
