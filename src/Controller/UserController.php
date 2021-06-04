@@ -81,7 +81,7 @@ class UserController extends AbstractController
      *     description="User to add",
      *     required=true,
      *     @Model(type=User::class, groups={"get:users"})
-     *     )
+     * )
      * @OA\Response(
      *     response=201,
      *     description="Success - Return User added.",
@@ -151,6 +151,68 @@ class UserController extends AbstractController
             $entityManager->flush();
 
             return $this->json(['success' => true, 'msg' => 'Success, User deleted.'], 200);
+        } else {
+            return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
+        }
+    }
+
+    /**
+     * Update patch an user by a company
+     *
+     * @Route("/api/users/{id}", name="update_patch_user", methods={"PATCH"})
+     * @OA\Parameter(
+     *     name="id",
+     *     in="path",
+     *     required=true,
+     *     description="Id of user to update",
+     *     @OA\Schema(type="integer")
+     * )
+     * @OA\RequestBody(
+     *     description="User data to update",
+     *     required=true,
+     *     @Model(type=User::class, groups={"get:users"})
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Success - Return User Updated.",
+     *     @Model(type=User::class, groups={"get:users"})
+     * )
+     * @OA\Response(
+     *     response=401,
+     *     description="JWT Token not found | Expired JWT Token"
+     * )
+     * @OA\Response(
+     *     response=500,
+     *     description="Syntax Error - Internal Error"
+     * )
+     * @OA\Tag(name="users")
+     * @Security(name="Bearer")
+     */
+    public function updatePatchUserByCompany(Request $request, User $user, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    {
+        if ($user->getCompany() === $this->getUser()) {
+            $userData = $serializer->deserialize($request->getContent(), User::class, 'json');
+
+            if (!empty($userData->getFirstName())) {
+                $user->setFirstName($userData->getFirstName());
+            }
+
+            if (!empty($userData->getLastName())) {
+                $user->setLastName($userData->getLastName());
+            }
+
+            if (!empty($userData->getEmail())) {
+                $user->setEmail($userData->getEmail());
+            }
+
+            if (!empty($userData->getDateRegistration())) {
+                $user->setDateRegistration($userData->getDateRegistration());
+            }
+
+            $entityManager->persist($user);
+            $entityManager->flush();
+
+            return $this->json($user, 201, [], ['groups' => 'get:users']);
         } else {
             return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
         }
