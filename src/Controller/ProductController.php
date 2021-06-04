@@ -7,6 +7,7 @@ use App\Repository\PhoneRepository;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
@@ -27,12 +28,18 @@ class ProductController extends AbstractController
      * )
      * @OA\Tag(name="products")
      */
-    public function getProducts(PhoneRepository $phoneRepository, CacheInterface $cache)
+    public function getProducts(Request $request, PhoneRepository $phoneRepository, CacheInterface $cache)
     {
-        return $cache->get('products', function (ItemInterface $item) use($phoneRepository) {
+        // Limit of products to return default 10
+        $limit = $request->get('limit') ?? 10;
+
+        // Offset of products to return default 0
+        $offset = $request->get('offset') ?? 0;
+
+        return $cache->get('products', function (ItemInterface $item) use($phoneRepository, $limit, $offset) {
             $item->expiresAfter(30);
 
-            return $this->json($phoneRepository->findBy([], ['releaseDate' => 'DESC']), 200, [], ['groups' => 'get:products']);
+            return $this->json($phoneRepository->findBy([], ['releaseDate' => 'DESC'], $limit, $offset), 200, [], ['groups' => 'get:products']);
         });
     }
 
