@@ -7,6 +7,7 @@ use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
@@ -68,7 +69,7 @@ class UserController extends AbstractController
             if ($user->getCompany() === $this->getUser()) {
                 return $this->json($user, 200, [], ['groups' => 'get:users']);
             } else {
-                return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
+                throw new AccessDeniedHttpException();
             }
         });
     }
@@ -152,7 +153,7 @@ class UserController extends AbstractController
 
             return $this->json(['success' => true, 'msg' => 'Success, User deleted.'], 200);
         } else {
-            return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
+            throw new AccessDeniedHttpException();
         }
     }
 }
