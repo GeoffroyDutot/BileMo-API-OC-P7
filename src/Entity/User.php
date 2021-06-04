@@ -16,6 +16,8 @@ class User
      * @ORM\Id
      * @ORM\GeneratedValue
      * @ORM\Column(type="integer")
+     * @OA\Property(type="integer", description="The user's id.")
+     * @Groups("get:users")
      */
     private $id;
 
@@ -23,6 +25,7 @@ class User
      * @ORM\Column(type="string", length=255, nullable=true)
      * @OA\Property(type="string", description="The user's firstname.")
      * @Groups("get:users")
+     * @Groups("write:users")
      */
     private $firstName;
 
@@ -30,6 +33,7 @@ class User
      * @ORM\Column(type="string", length=255, nullable=true)
      * @OA\Property(type="string", description="The user's lastname.")
      * @Groups("get:users")
+     * @Groups("write:users")
      */
     private $lastName;
 
@@ -37,6 +41,7 @@ class User
      * @ORM\Column(type="string", length=255)
      * @OA\Property(type="string", description="The user's email.")
      * @Groups("get:users")
+     * @Groups("write:users")
      */
     private $email;
 
@@ -44,6 +49,7 @@ class User
      * @ORM\Column(type="datetime")
      * @OA\Property(type="string",format="date-time", description="The user's registration date.")
      * @Groups("get:users")
+     * @Groups("write:users")
      */
     private $dateRegistration;
 

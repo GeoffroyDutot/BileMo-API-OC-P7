@@ -98,7 +98,7 @@ class UserController extends AbstractController
      * @OA\RequestBody(
      *     description="User to add",
      *     required=true,
-     *     @Model(type=User::class, groups={"get:users"})
+     *     @Model(type=User::class, groups={"write:users"})
      * )
      * @OA\Response(
      *     response=201,
@@ -144,7 +144,7 @@ class UserController extends AbstractController
      *     @OA\Schema(type="integer")
      * )
      * @OA\Response(
-     *     response=200,
+     *     response=204,
      *     description="Success, User deleted."
      * )
      * @OA\Response(
@@ -168,7 +168,7 @@ class UserController extends AbstractController
             $entityManager->remove($user);
             $entityManager->flush();
 
-            return $this->json(['success' => true, 'msg' => 'Success, User deleted.'], 200);
+            return $this->json(['success' => true, 'msg' => 'Success, User deleted.'], 204);
         } else {
             throw new AccessDeniedHttpException();
         }
@@ -188,7 +188,7 @@ class UserController extends AbstractController
      * @OA\RequestBody(
      *     description="User data to update",
      *     required=true,
-     *     @Model(type=User::class, groups={"get:users"})
+     *     @Model(type=User::class, groups={"write:users"})
      * )
      * @OA\Response(
      *     response=200,
