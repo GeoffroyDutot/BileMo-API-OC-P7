@@ -22,6 +22,20 @@ class UserController extends AbstractController
      * List of users by company
      *
      * @Route("/api/users", name="users", methods={"GET"})
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     required=false,
+     *     description="Limit of users to return",
+     *     @OA\Schema(type="integer")
+     * )
+     * @OA\Parameter(
+     *     name="offset",
+     *     in="query",
+     *     required=false,
+     *     description="Offset of users to return",
+     *     @OA\Schema(type="integer")
+     * )
      * @OA\Response(
      *     response=200,
      *     description="Returns list of users by company",
