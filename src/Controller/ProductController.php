@@ -18,6 +18,20 @@ class ProductController extends AbstractController
      * List all products
      *
      * @Route("/api/products", name="products", methods={"GET"})
+     * @OA\Parameter(
+     *     name="limit",
+     *     in="query",
+     *     required=false,
+     *     description="Limit of products to return",
+     *     @OA\Schema(type="integer")
+     * )
+     * @OA\Parameter(
+     *     name="offset",
+     *     in="query",
+     *     required=false,
+     *     description="Offset of products to return",
+     *     @OA\Schema(type="integer")
+     * )
      * @OA\Response(
      *     response=200,
      *     description="Returns list of products",
