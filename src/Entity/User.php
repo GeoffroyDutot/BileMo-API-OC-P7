@@ -8,6 +8,7 @@ use Doctrine\ORM\Mapping\UniqueConstraint;
 use OpenApi\Annotations as OA;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  * @ORM\Table(uniqueConstraints={@UniqueConstraint(columns={"email", "company_id"})})
@@ -44,6 +45,8 @@ class User
     /**
      * @ORM\Column(type="string", length=255)
      * @OA\Property(type="string", description="The user's email.")
+     * @Assert\NotBlank
+     * @Assert\Email()
      * @Groups("get:users")
      * @Groups("write:users")
      */
@@ -52,6 +55,7 @@ class User
     /**
      * @ORM\Column(type="datetime")
      * @OA\Property(type="string",format="date-time", description="The user's registration date.")
+     * @Assert\Type("\DateTimeInterface")
      * @Groups("get:users")
      * @Groups("write:users")
      */

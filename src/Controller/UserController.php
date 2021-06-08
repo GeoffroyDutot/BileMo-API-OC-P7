@@ -13,6 +13,7 @@ use Symfony\Component\Routing\Annotation\Route;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Component\Serializer\SerializerInterface;
+use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
@@ -75,6 +76,18 @@ class UserController extends AbstractController
      *     description="Return one user by company",
      *     @Model(type=User::class, groups={"get:users"})
      * )
+     * @OA\Response(
+     *     response=401,
+     *     description="JWT Token not found | Expired JWT Token"
+     * )
+     * @OA\Response(
+     *     response=403,
+     *     description="Unauthorized."
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="User not found."
+     * )
      * @OA\Tag(name="users")
      * @Security(name="Bearer")
      */
@@ -106,17 +119,25 @@ class UserController extends AbstractController
      *     @Model(type=User::class, groups={"get:users"})
      * )
      * @OA\Response(
+     *     response=400,
+     *     description="Bad Requet - Syntax Error"
+     * )
+     * @OA\Response(
      *     response=401,
      *     description="JWT Token not found | Expired JWT Token"
      * )
      * @OA\Response(
+     *     response=409,
+     *     description="User already exists with this email for this company."
+     * )
+     * @OA\Response(
      *     response=500,
-     *     description="Syntax Error - Internal Error"
+     *     description="Internal Error"
      * )
      * @OA\Tag(name="users")
      * @Security(name="Bearer")
      */
-    public function addUserByCompany(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, UserRepository $userRepository)
+    public function addUserByCompany(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, UserRepository $userRepository, ValidatorInterface $validator)
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
@@ -128,6 +149,12 @@ class UserController extends AbstractController
 
         if (!empty($userRepository->findOneBy(['email' => $user->getEmail(), 'company' => $user->getCompany()]))) {
             return $this->json(['code' => 409, 'message' => 'User already exists with this email for this company.'], 409);
+        }
+
+        $errors = $validator->validate($user);
+
+        if(count($errors) > 0) {
+            return $this->json(['code' => 400, 'errors' => $errors], 400);
         }
 
         $entityManager->persist($user);
@@ -200,17 +227,33 @@ class UserController extends AbstractController
      *     @Model(type=User::class, groups={"get:users"})
      * )
      * @OA\Response(
+     *     response=400,
+     *     description="Bad Requet - Syntax Error"
+     * )
+     * @OA\Response(
      *     response=401,
      *     description="JWT Token not found | Expired JWT Token"
      * )
      * @OA\Response(
+     *     response=403,
+     *     description="Unauthorized."
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="User not found."
+     * )
+     * @OA\Response(
+     *     response=409,
+     *     description="User already exists with this email for this company."
+     * )
+     * @OA\Response(
      *     response=500,
-     *     description="Syntax Error - Internal Error"
+     *     description="Internal Error"
      * )
      * @OA\Tag(name="users")
      * @Security(name="Bearer")
      */
-    public function updatePatchUserByCompany(Request $request, User $user, SerializerInterface $serializer, EntityManagerInterface $entityManager, UserRepository $userRepository)
+    public function updatePatchUserByCompany(Request $request, User $user, SerializerInterface $serializer, EntityManagerInterface $entityManager, UserRepository $userRepository, ValidatorInterface $validator)
     {
         if ($user->getCompany() === $this->getUser()) {
             $userData = $serializer->deserialize($request->getContent(), User::class, 'json');
@@ -234,12 +277,18 @@ class UserController extends AbstractController
                 $user->setDateRegistration($userData->getDateRegistration());
             }
 
+            $errors = $validator->validate($user);
+
+            if(count($errors) > 0) {
+                return $this->json(['code' => 400, 'errors' => $errors], 400);
+            }
+
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return $this->json($user, 201, [], ['groups' => 'get:users']);
-        } else {
-            return $this->json(['success' => false, 'msg' => 'Unauthorized.'], 403);
+            return $this->json($user, 200, [], ['groups' => 'get:users']);
+        }  else {
+            throw new AccessDeniedHttpException();
         }
     }
 }
