@@ -98,7 +98,7 @@ class UserController extends AbstractController
      * @OA\RequestBody(
      *     description="User to add",
      *     required=true,
-     *     @Model(type=User::class, groups={"get:users"})
+     *     @Model(type=User::class, groups={"write:users"})
      * )
      * @OA\Response(
      *     response=201,
@@ -116,7 +116,7 @@ class UserController extends AbstractController
      * @OA\Tag(name="users")
      * @Security(name="Bearer")
      */
-    public function addUserByCompany(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    public function addUserByCompany(Request $request, SerializerInterface $serializer, EntityManagerInterface $entityManager, UserRepository $userRepository)
     {
         $user = $serializer->deserialize($request->getContent(), User::class, 'json');
 
@@ -125,6 +125,10 @@ class UserController extends AbstractController
         }
 
         $user->setCompany($this->getUser());
+
+        if (!empty($userRepository->findOneBy(['email' => $user->getEmail(), 'company' => $user->getCompany()]))) {
+            return $this->json(['code' => 409, 'message' => 'User already exists with this email for this company.'], 409);
+        }
 
         $entityManager->persist($user);
         $entityManager->flush();
@@ -144,7 +148,7 @@ class UserController extends AbstractController
      *     @OA\Schema(type="integer")
      * )
      * @OA\Response(
-     *     response=200,
+     *     response=204,
      *     description="Success, User deleted."
      * )
      * @OA\Response(
@@ -168,7 +172,7 @@ class UserController extends AbstractController
             $entityManager->remove($user);
             $entityManager->flush();
 
-            return $this->json(['success' => true, 'msg' => 'Success, User deleted.'], 200);
+            return $this->json(['success' => true, 'msg' => 'Success, User deleted.'], 204);
         } else {
             throw new AccessDeniedHttpException();
         }
@@ -188,7 +192,7 @@ class UserController extends AbstractController
      * @OA\RequestBody(
      *     description="User data to update",
      *     required=true,
-     *     @Model(type=User::class, groups={"get:users"})
+     *     @Model(type=User::class, groups={"write:users"})
      * )
      * @OA\Response(
      *     response=200,
@@ -206,11 +210,10 @@ class UserController extends AbstractController
      * @OA\Tag(name="users")
      * @Security(name="Bearer")
      */
-    public function updatePatchUserByCompany(Request $request, User $user, SerializerInterface $serializer, EntityManagerInterface $entityManager)
+    public function updatePatchUserByCompany(Request $request, User $user, SerializerInterface $serializer, EntityManagerInterface $entityManager, UserRepository $userRepository)
     {
         if ($user->getCompany() === $this->getUser()) {
             $userData = $serializer->deserialize($request->getContent(), User::class, 'json');
-
             if (!empty($userData->getFirstName())) {
                 $user->setFirstName($userData->getFirstName());
             }
@@ -221,6 +224,10 @@ class UserController extends AbstractController
 
             if (!empty($userData->getEmail())) {
                 $user->setEmail($userData->getEmail());
+
+                if (!empty($userRepository->findOneBy(['email' => $user->getEmail(), 'company' => $user->getCompany()])) && $userRepository->findOneBy(['email' => $user->getEmail(), 'company' => $user->getCompany()])->getId() !== $user->getId()) {
+                    return $this->json(['code' => 409, 'message' => 'User already exists with this email for this company.'], 409);
+                }
             }
 
             if (!empty($userData->getDateRegistration())) {

@@ -51,7 +51,7 @@ class Phone
 
     /**
      * @ORM\Column(type="decimal")
-     * @OA\Property(type="flaot", description="The phone price.")
+     * @OA\Property(type="float", description="The phone price.")
      * @Groups("get:products")
      */
     private $price;
