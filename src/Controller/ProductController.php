@@ -61,17 +61,21 @@ class ProductController extends AbstractController
      * Get one product by it's id
      *
      * @Route("/api/product/{id}", name="product", methods={"GET"})
-     * @OA\Response(
-     *     response=200,
-     *     description="Return one product by it's id",
-     *     @Model(type=Phone::class, groups={"get:products"})
-     * )
      * @OA\Parameter(
      *     name="id",
      *     in="path",
      *     required=true,
      *     description="Id of product",
      *     @OA\Schema(type="integer")
+     * )
+     * @OA\Response(
+     *     response=200,
+     *     description="Return one product by it's id",
+     *     @Model(type=Phone::class, groups={"get:products"})
+     * )
+     * @OA\Response(
+     *     response=404,
+     *     description="Product not found."
      * )
      * @OA\Tag(name="products")
      */
