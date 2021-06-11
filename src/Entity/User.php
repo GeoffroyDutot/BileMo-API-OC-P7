@@ -7,13 +7,58 @@ use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\UniqueConstraint;
 use OpenApi\Annotations as OA;
 use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
-use Symfony\Component\Serializer\Annotation\Groups;
+use JMS\Serializer\Annotation\Groups;
 use Symfony\Component\Validator\Constraints as Assert;
+use Hateoas\Configuration\Annotation as Hateoas;
 
 /**
  * @ORM\Table(uniqueConstraints={@UniqueConstraint(columns={"email", "company_id"})})
  * @ORM\Entity(repositoryClass=UserRepository::class)
  * @UniqueEntity(fields={"email", "company"}, ignoreNull = false)
+ *
+ * @Hateoas\Relation(
+ *     "self",
+ *     href = @Hateoas\Route(
+ *         "user",
+ *         parameters = { "id" = "expr(object.getId())" },
+ *         absolute = true
+ *     ),
+ *     exclusion = @Hateoas\Exclusion(
+ *         groups = { "get:users", "write:users" }
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "add",
+ *     href = @Hateoas\Route(
+ *         "add_user",
+ *         absolute = true
+ *     ),
+ *     exclusion = @Hateoas\Exclusion(
+ *         groups = { "get:users", "write:users" }
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "update_patch",
+ *     href = @Hateoas\Route(
+ *         "update_patch_user",
+ *         parameters = { "id" = "expr(object.getId())" },
+ *         absolute = true
+ *     ),
+ *     exclusion = @Hateoas\Exclusion(
+ *         groups = { "get:users", "write:users" }
+ *     )
+ * )
+ * @Hateoas\Relation(
+ *     "delete",
+ *     href = @Hateoas\Route(
+ *         "delete_user",
+ *         parameters = { "id" = "expr(object.getId())" },
+ *         absolute = true
+ *     ),
+ *     exclusion = @Hateoas\Exclusion(
+ *         groups = { "get:users", "write:users" }
+ *     )
+ * )
  */
 class User
 {
@@ -29,16 +74,14 @@ class User
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @OA\Property(type="string", description="The user's firstname.")
-     * @Groups("get:users")
-     * @Groups("write:users")
+     * @Groups("get:users", "write:users")
      */
     private $firstName;
 
     /**
      * @ORM\Column(type="string", length=255, nullable=true)
      * @OA\Property(type="string", description="The user's lastname.")
-     * @Groups("get:users")
-     * @Groups("write:users")
+     * @Groups("get:users", "write:users")
      */
     private $lastName;
 
@@ -47,8 +90,7 @@ class User
      * @OA\Property(type="string", description="The user's email.")
      * @Assert\NotBlank
      * @Assert\Email()
-     * @Groups("get:users")
-     * @Groups("write:users")
+     * @Groups("get:users", "write:users")
      */
     private $email;
 
@@ -56,8 +98,7 @@ class User
      * @ORM\Column(type="datetime")
      * @OA\Property(type="string",format="date-time", description="The user's registration date.")
      * @Assert\Type("\DateTimeInterface")
-     * @Groups("get:users")
-     * @Groups("write:users")
+     * @Groups("get:users", "write:users")
      */
     private $dateRegistration;
 
