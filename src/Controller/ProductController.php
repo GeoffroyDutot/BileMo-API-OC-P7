@@ -60,7 +60,7 @@ class ProductController extends AbstractController
     /**
      * Get one product by it's id
      *
-     * @Route("/api/product/{id}", name="product", methods={"GET"})
+     * @Route("/api/products/{id}", name="product", methods={"GET"})
      * @OA\Parameter(
      *     name="id",
      *     in="path",
@@ -81,6 +81,7 @@ class ProductController extends AbstractController
      */
     public function getProductById(Phone $phone, CacheInterface $cache)
     {
+        return $this->json($phone, 200, [], ['groups' => 'get:products']);die();
         return $cache->get('product'.$phone->getId(), function (ItemInterface $item) use($phone) {
             $item->expiresAfter(30);
 
