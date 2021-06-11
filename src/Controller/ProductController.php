@@ -4,16 +4,25 @@ namespace App\Controller;
 
 use App\Entity\Phone;
 use App\Repository\PhoneRepository;
+use JMS\Serializer\SerializationContext;
+use JMS\Serializer\SerializerInterface;
 use Nelmio\ApiDocBundle\Annotation\Model;
 use OpenApi\Annotations as OA;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Contracts\Cache\CacheInterface;
 use Symfony\Contracts\Cache\ItemInterface;
 
 class ProductController extends AbstractController
 {
+    private $serializer;
+
+    public function __construct(SerializerInterface $serializer) {
+        $this->serializer = $serializer;
+    }
+
     /**
      * List all products
      *
@@ -53,7 +62,7 @@ class ProductController extends AbstractController
         return $cache->get('products', function (ItemInterface $item) use($phoneRepository, $limit, $offset) {
             $item->expiresAfter(30);
 
-            return $this->json($phoneRepository->findBy([], ['releaseDate' => 'DESC'], $limit, $offset), 200, [], ['groups' => 'get:products']);
+            return new Response($this->serializer->serialize($phoneRepository->findBy([], ['releaseDate' => 'DESC'], $limit, $offset), 'json', SerializationContext::create()->setGroups(['get:products'])), 200, ['Content-Type' => 'application/json']);
         });
     }
 
@@ -81,11 +90,10 @@ class ProductController extends AbstractController
      */
     public function getProductById(Phone $phone, CacheInterface $cache)
     {
-        return $this->json($phone, 200, [], ['groups' => 'get:products']);die();
         return $cache->get('product'.$phone->getId(), function (ItemInterface $item) use($phone) {
             $item->expiresAfter(30);
 
-            return $this->json($phone, 200, [], ['groups' => 'get:products']);
+            return new Response($this->serializer->serialize($phone, 'json', SerializationContext::create()->setGroups(['get:products'])), 200, ['Content-Type' => 'application/json']);
         });
     }
 }

@@ -1,5 +1,4 @@
 nelmio_api_doc:
-    models: { use_jms: false }
     documentation:
         info:
             title: BileMo API OC P7

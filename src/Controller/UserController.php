@@ -5,8 +5,10 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Repository\UserRepository;
 use Doctrine\ORM\EntityManagerInterface;
+use JMS\Serializer\SerializationContext;
 use Nelmio\ApiDocBundle\Annotation\Security;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,6 +21,12 @@ use Symfony\Contracts\Cache\ItemInterface;
 
 class UserController extends AbstractController
 {
+    private $serializer;
+
+    public function __construct(\JMS\Serializer\SerializerInterface $serializer) {
+        $this->serializer = $serializer;
+    }
+
     /**
      * List of users by company
      *
@@ -56,7 +64,7 @@ class UserController extends AbstractController
         return $cache->get('users'.$this->getUser()->getId(), function (ItemInterface $item) use($userRepository, $limit, $offset) {
             $item->expiresAfter(30);
 
-            return $this->json($userRepository->findBy(['company' => $this->getUser()->getId()], ['dateRegistration' => 'DESC'], $limit, $offset), 200, [], ['groups' => 'get:users']);
+            return new Response($this->serializer->serialize($userRepository->findBy(['company' => $this->getUser()->getId()], ['dateRegistration' => 'DESC'], $limit, $offset), 'json', SerializationContext::create()->setGroups(['get:users'])), 200, ['Content-Type' => 'application/json']);
         });
     }
 
@@ -97,7 +105,8 @@ class UserController extends AbstractController
             $item->expiresAfter(30);
 
             if ($user->getCompany() === $this->getUser()) {
-                return $this->json($user, 200, [], ['groups' => 'get:users']);
+
+                return new Response($this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(['get:users'])), 200, ['Content-Type' => 'application/json']);
             } else {
                 throw new AccessDeniedHttpException();
             }
@@ -148,19 +157,19 @@ class UserController extends AbstractController
         $user->setCompany($this->getUser());
 
         if (!empty($userRepository->findOneBy(['email' => $user->getEmail(), 'company' => $user->getCompany()]))) {
-            return $this->json(['code' => 409, 'message' => 'User already exists with this email for this company.'], 409);
+            return new Response($this->serializer->serialize(['code' => 409, 'message' => 'User already exists with this email for this company.'], 'json'), 409, ['Content-Type' => 'application/json']);
         }
 
         $errors = $validator->validate($user);
 
         if(count($errors) > 0) {
-            return $this->json(['code' => 400, 'errors' => $errors], 400);
+            return new Response($this->serializer->serialize(['code' => 400, 'errors' => $errors], 'json'), 400, ['Content-Type' => 'application/json']);
         }
 
         $entityManager->persist($user);
         $entityManager->flush();
 
-        return $this->json($user, 201, [], ['groups' => 'get:users']);
+        return new Response($this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(['get:users'])), 201, ['Content-Type' => 'application/json']);
     }
 
     /**
@@ -199,7 +208,7 @@ class UserController extends AbstractController
             $entityManager->remove($user);
             $entityManager->flush();
 
-            return $this->json(['success' => true, 'msg' => 'Success, User deleted.'], 204);
+            return new Response($this->serializer->serialize(['success' => true, 'msg' => 'Success, User deleted.'], 'json'), 204, ['Content-Type' => 'application/json']);
         } else {
             throw new AccessDeniedHttpException();
         }
@@ -269,7 +278,7 @@ class UserController extends AbstractController
                 $user->setEmail($userData->getEmail());
 
                 if (!empty($userRepository->findOneBy(['email' => $user->getEmail(), 'company' => $user->getCompany()])) && $userRepository->findOneBy(['email' => $user->getEmail(), 'company' => $user->getCompany()])->getId() !== $user->getId()) {
-                    return $this->json(['code' => 409, 'message' => 'User already exists with this email for this company.'], 409);
+                    return new Response($this->serializer->serialize(['code' => 409, 'message' => 'User already exists with this email for this company.'], 'json'), 409, ['Content-Type' => 'application/json']);
                 }
             }
 
@@ -280,13 +289,13 @@ class UserController extends AbstractController
             $errors = $validator->validate($user);
 
             if(count($errors) > 0) {
-                return $this->json(['code' => 400, 'errors' => $errors], 400);
+                return new Response($this->serializer->serialize(['code' => 400, 'errors' => $errors], 'json'), 400, ['Content-Type' => 'application/json']);
             }
 
             $entityManager->persist($user);
             $entityManager->flush();
 
-            return $this->json($user, 200, [], ['groups' => 'get:users']);
+            return new Response($this->serializer->serialize($user, 'json', SerializationContext::create()->setGroups(['get:users'])), 200, ['Content-Type' => 'application/json']);
         }  else {
             throw new AccessDeniedHttpException();
         }
